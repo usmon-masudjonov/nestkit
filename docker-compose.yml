@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: nestkit-postgres
+    image: postgres:latest
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${PG_DB_NAME}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - '5432:5432'
+    networks:
+      - nestkit_network
+
+  redis:
+    container_name: nestkit-redis
+    restart: always
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    networks:
+      - nestkit_network
+
+  gitlab-runner:
+    container_name: nestkit-gitlab-runner
+    image: gitlab/gitlab-runner:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/gitlab-runner:/etc/gitlab-runner
+    networks:
+      - nestkit_network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  nestkit_network:
+    name: nestkit_network
+    driver: overlay
+    attachable: true
